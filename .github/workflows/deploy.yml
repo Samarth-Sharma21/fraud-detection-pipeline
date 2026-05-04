@@ -1,0 +1,46 @@
+name: Deploy to HuggingFace Spaces
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Test API imports
+        run: |
+          python -c "from api.main import app; print('API imports OK')"
+      - name: Test model loading
+        run: |
+          python -c "
+          import joblib, json, os
+          model = joblib.load('models/best_model.joblib')
+          with open('models/model_metadata.json') as f:
+              meta = json.load(f)
+          print(f'Model: {meta[\"model_name\"]}')
+          print(f'AUC: {meta[\"metrics\"][\"roc_auc\"]:.4f}')
+          print('Model loading OK')
+          "
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          lfs: true
+      - name: Push to HuggingFace Spaces
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: |
+          git remote add hf https://Samarth-21:${{ secrets.HF_TOKEN }}@huggingface.co/spaces/Samarth-21/fraud-detection-pipeline
+          git push hf main --force
