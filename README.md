@@ -1,3 +1,11 @@
+---
+title: Fraud Detection Pipeline
+emoji: 🛡️
+colorFrom: blue
+colorTo: green
+sdk: docker
+app_port: 7860
+---
 # Fraud Detection Pipeline
 
 A production-grade fraud detection system built on the **IEEE-CIS Fraud Detection** dataset. Combines machine learning, MLOps, API serving, real-time explainability (SHAP), and a professional monitoring dashboard.
